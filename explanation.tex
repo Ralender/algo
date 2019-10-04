@@ -1,0 +1,57 @@
+\documentclass[11pt, a4paper]{article}
+ 
+\begin{document}
+
+Let $h$ be the list of the houses sorted in increassing order.
+Let $l$ be the length of the list.
+
+Whenever we go over an unvisited house, we loose nothing by visiting it, because it takes 0 time.
+Due to this, at any point of the solution, we have the choice between going to the closest house negatively or positively.
+
+Let us assume we are picking the $k$th house of out solution $s$ constisting of the indexes of picked houses.
+Let's ignore our first house pick and assume $k \geq 1$.
+
+Our current position is $h_{s_{k-1}}$.
+Let $p_{k - 1}$ be the index of the next positive house available, and $q_{k - 1}$ be the next negative house available.
+
+
+If we choose $h_{p_{k - 1}}$, then our new state would be:
+
+\[p_k = p_{k - 1} + 1\]
+\[q_k = q_{k - 1}\]
+\[s_k = p_{k - 1}\]
+
+The value of $p_k$ is based on the fact that houses in $h$ are sorted.
+
+If we choose $h_{q_{k - 1}}$, then our new state would be:
+
+\[p_k = p_{k - 1}\]
+\[q_k = q_{k - 1} - 1\]
+\[s_k = q_{k - 1}\]
+
+The value of $q_k$ is based on the fact that houses in $h$ are sorted.
+
+
+We can calculate the cost of our choice as:
+
+\[|h_{s_{k}} - h_{s_{k - 1}}| \times (l - k - 1) + c_{p_k, q_k, s_k}\]
+
+with $c_{p_k, q_k, s_k}$ being a cost we have to calculate based on $(p_k, q_k, s_k)$. We make our choice based on this value, but since it is recursivly defined we need a base case which is when $k = l - 1$, where the cost is simply $0$.
+
+Based on both above possibillities, we can deduce the following:
+
+\[\forall k \in [1, l[, s_k = q_{k - 1} = q_k + 1 \vee s_k = p_{k - 1} = p_k - 1\]
+
+We know that space to explore is defined by (p, q, s).
+Since \[\forall k \in [1, l[ p_k \in [0, l[, q_k \in [0, l[, s_k = q_k + 1 \vee s_k = p_k - 1\] we have to explore a space of size $l * l * 2$.
+By using memoisation, we can explore each state only once.
+This gives a complexity of $2n^2$.
+We still have to handle the choice of $s_0$.
+This is rather trivial, we just need to calculate the cost of starting with the smallest positive house or smallest negative house.
+Since the cost is linear, it doesn't affect the complexity of our algorithm.
+
+
+Note: Our memoization implementation uses the python dictionary type. We can reasonably expect this dictionnary type to have a polytnomial time or better, and thus our algorithm remains polynomial. It is most likelly constant or logaritmic in complexity. Our result is created using a python list. Appending and lookup should reasonably be polynomial too (and is likelly constant or linear).
+
+
+\end{document}
