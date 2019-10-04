@@ -94,6 +94,42 @@ def stupid_algo(l : list):
         result = greedy_list
     return result
 
+def perfect_algo(l: list):
+    import solution
+    return solution.parcours(l)
+    
+def heuristic_algo(l: list):
+    l = sorted(l)
+    startIdx = 0;
+    while startIdx != len(l) and l[startIdx] < 0:
+        startIdx += 1
+    negativeIdx = startIdx - 1
+    positiveIdx = startIdx
+    position = 0;
+    result = []
+    def evaluate(receding, approaching, distance):
+        return -receding * distance
+    while negativeIdx >= 0 and positiveIdx < len(l):
+        left = negativeIdx + 1
+        right = len(l) - positiveIdx - 1
+        if evaluate(right - 1, left, abs(l[positiveIdx] - position)) > evaluate(left - 1, right, abs(l[negativeIdx] - position)):
+            position = l[positiveIdx]
+            positiveIdx += 1
+        else:
+            position = l[negativeIdx]
+            negativeIdx -= 1
+        result.append(position)
+    while positiveIdx < len(l):
+        position = l[positiveIdx]
+        positiveIdx += 1
+        result.append(position)
+    while negativeIdx >= 0:
+        position = l[negativeIdx]
+        negativeIdx -= 1
+        result.append(position)
+    assert(len(l) == len(result))
+    return result
+
 def test_algo(l: list):
     sorted_list = sorted(l)
     start_idx = 0
@@ -122,26 +158,54 @@ def test_algo(l: list):
 #     count = count + 1
 #     print("avg = " + str(avg_percent) + "%")
 
+def calculate_algo_performace(algo, l):
+    path = algo(l.copy())
+    if len(path) != len(l):
+        print("result list is not the right size", len(path));
+        abort()
+    if sorted(path) != sorted(l):
+        print("result list is not a permutation of the original list")
+        abort()
+#    print(["%0.2f" % f for f in path])
+    return compute_score(path);
+
+
 avg_percent = 0
 count = 0
 while 1:
-    l =  numpy.random.normal(0,10,house_count).tolist()
-    algo_score = compute_score(greedy(l.copy()))
-    greedy_score = compute_score(test_algo(l))
-    reference_score = compute_score(l)
+    l =  numpy.random.normal(0,1000,house_count).tolist()
+    algo_score = calculate_algo_performace(greedy, l)
+    greedy_score = calculate_algo_performace(test_algo, l)
+    heuristic_score = calculate_algo_performace(heuristic_algo, l)
+    perfect_score = calculate_algo_performace(perfect_algo, l)
+    reference_score = greedy_score
     sorted_list = sorted(l.copy())
     sort_score = compute_score(sorted_list)
+    
     sorted_list.reverse()
     rev_sort_score = compute_score(sorted_list)
+
     greedy_percent = (reference_score - greedy_score) * 100 / reference_score
     algo_percent = (reference_score - algo_score) * 100 / reference_score
     sort_percent = (reference_score - sort_score) * 100 / reference_score
     rev_sort_percent = (reference_score - rev_sort_score) * 100 / reference_score
+    heuristic_percent = (reference_score - heuristic_score) * 100 / reference_score
+    perfect_percent = (reference_score - perfect_score) * 100 / reference_score
 
+    print("------Scores-----")
+    print("greedy\t" + str(greedy_score))
+    print("my algo\t" + str(algo_score))
+    print("sort\t" + str(sort_score))
+    print("rev sort\t" + str(rev_sort_score))
+    print("heuristic\t" + str(heuristic_score))
+    print("perfect\t" + str(perfect_score))
+    print("------Percents-----")
     print("greedy\t" + str(greedy_percent))
     print("my algo\t" + str(algo_percent))
     print("sort\t" + str(sort_percent))
     print("rev sort\t" + str(rev_sort_percent))
+    print("heuristic\t" + str(heuristic_percent))
+    print("perfect\t" + str(perfect_percent))
 
     # tmp_percent = (greedy_score - algo_score) * 100 / algo_score
     # avg_percent = ((avg_percent * count) + tmp_percent) / (count + 1)
